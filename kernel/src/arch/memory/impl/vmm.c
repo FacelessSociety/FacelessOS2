@@ -31,7 +31,7 @@
 
 __attribute__((aligned(0x1000))) struct MappingTable {
     uint64_t entries[512];
-} pml4;
+} *pml4 = NULL;
 
 
 void map_page(void* logical, unsigned int flags) {
@@ -44,15 +44,15 @@ void map_page(void* logical, unsigned int flags) {
     int pd_idx = (addr >> 21) & 0x1FF;
     int pt_idx = (addr >> 12) & 0x1FF;
 
-    if (!(pml4.entries[pml4_idx] & PAGE_BIT_P_PRESENT)) {
+    if (!(pml4->entries[pml4_idx] & PAGE_BIT_P_PRESENT)) {
         // We did not define a PDPT for this entry in PML4.
         uint64_t pdpt = (uint64_t)pmm_allocz();
         memzero((void*)pdpt, PAGE_SIZE);
-        pml4.entries[pml4_idx] = (pdpt & PAGE_ADDR_MASK) | flags;
+        pml4->entries[pml4_idx] = (pdpt & PAGE_ADDR_MASK) | flags;
         map_page((void*)pdpt, flags);
     }
 
-    struct MappingTable* pdpt = (struct MappingTable*)(pml4.entries[pml4_idx] & PAGE_ADDR_MASK);
+    struct MappingTable* pdpt = (struct MappingTable*)(pml4->entries[pml4_idx] & PAGE_ADDR_MASK);
 
     if (!(pdpt->entries[pdpt_idx] & PAGE_BIT_P_PRESENT)) {
         // We did not define PDT for this PDPT entry, so allocate a page for the PDT.
@@ -92,7 +92,7 @@ uint8_t unmap_page(void* logical) {
     int pd_idx = (addr >> 21) & 0x1FF;
     int pt_idx = (addr >> 12) & 0x1FF;
 
-    struct MappingTable* pdpt = (struct MappingTable*)(pml4.entries[pml4_idx] & PAGE_ADDR_MASK);
+    struct MappingTable* pdpt = (struct MappingTable*)(pml4->entries[pml4_idx] & PAGE_ADDR_MASK);
     struct MappingTable* pdt = (struct MappingTable*)(pdpt->entries[pdpt_idx] & PAGE_ADDR_MASK);
     struct MappingTable* pt = (struct MappingTable*)(pdt->entries[pd_idx] & PAGE_ADDR_MASK);
 
@@ -106,9 +106,8 @@ uint8_t unmap_page(void* logical) {
 
 
 void vmm_init(struct stivale2_struct* ss) {
-    struct MappingTable* pml4_cpy = pmm_allocz();
+    pml4 = pmm_allocz();
 
-    __asm__ __volatile__("mov %%cr3, %0" : "=r" (pml4_cpy));
-    strncpy((uint8_t*)&pml4, (uint8_t*)pml4_cpy, PAGE_SIZE);
-    __asm__ __volatile__("mov %0, %%cr3" :: "r" (pml4_cpy));
+    __asm__ __volatile__("mov %%cr3, %0" : "=r" (pml4));
+    __asm__ __volatile__("mov %0, %%cr3" :: "r" (pml4));
 }

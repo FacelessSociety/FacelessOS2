@@ -97,6 +97,7 @@ static void init(struct stivale2_struct* ss) {
     kwrite("Interrupt Descriptor Table loaded.\n");
     pmm_init(ss);
     vmm_init(ss);
+    kwrite("YES!\n");
 }
 
 

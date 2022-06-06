@@ -67,6 +67,15 @@ uint8_t pci_get_device_subclass(uint8_t bus, uint8_t slot, uint8_t func) {
 }
 
 
+
+uint32_t pci_get_device_bar5(uint8_t bus, uint8_t slot, uint8_t func) {
+    uint16_t lo = pci_read_word(bus, slot, func, 0x24);
+    uint16_t hi = pci_read_word(bus, slot, func, 0x26) >> 16;
+
+    return (uint32_t)(hi << 16 | lo);
+}
+
+
 struct PCIDevice locate_pci_device(uint8_t classid, uint8_t subclassid) {
     struct PCIDevice dev;
 

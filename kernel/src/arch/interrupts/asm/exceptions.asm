@@ -38,14 +38,14 @@ global stack_segment_fault
 global general_protection_fault
 global page_fault
 
-extern panic
-
+extern cpu_panic
+extern hex2str
 
 %macro kpanic 1
     cli
 
-    mov rdi, panic_msg1
-    call panic
+    mov rdi, %1
+    call cpu_panic
 
     hlt
 %endmacro
@@ -90,6 +90,3 @@ general_protection_fault:
 
 page_fault:
     kpanic 0xE
-
-
-panic_msg1: db "An exception vector fired.", 0xA, 0x0

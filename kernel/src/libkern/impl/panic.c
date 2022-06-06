@@ -28,9 +28,62 @@
 
 
 void panic(const char* panic_msg) {
-    kwrite("\033[H\033[2J\033[3J");
-    kwrite("\033[91m** KERNEL PANIC **\n");
-    kwrite("\033[91m");
-    kwrite(panic_msg);
+    log("\033[H\033[2J\033[3J");
+    log("\033[91m** KERNEL PANIC **\n");
+    log("\033[91m%s\n", panic_msg);
     __asm__ __volatile__("cli; hlt");
+}
+
+
+void cpu_panic(uint32_t vector_fired) {
+    const char* fault_type = "Unknown Fault";
+
+    log("\033[H\033[2J\033[3J");
+    log("\033[91m** KERNEL PANIC **\n");
+
+    // Set fault type.
+    switch (vector_fired) {
+        case 0x0:
+            fault_type = "Divide Error";
+            break;
+        case 0x1:
+            fault_type = "Debug Exception";
+            break;
+        case 0x3:
+            fault_type = "Breakpoint Exception";
+            break;
+        case 0x4:
+            fault_type = "Overflow Exception";
+            break;
+        case 0x5:
+            fault_type = "Boundrange Exceeded";
+            break;
+        case 0x6:
+            fault_type = "Invalid Opcode";
+            break;
+        case 0x7:
+            fault_type = "Device Not Avl";
+            break;
+        case 0x8:
+            fault_type = "Double Fault";
+            break;
+        case 0xA:
+            fault_type = "Invalid TSS";
+            break;
+        case 0xB:
+            fault_type = "Segment Not Present";
+            break;
+        case 0xC:
+            fault_type = "Stack Segment Fault";
+            break;
+        case 0xD:
+            fault_type = "General Protection Fault";
+            break;
+        case 0xE:
+            fault_type = "Page Fault";
+            break;
+
+    }
+
+    log("\033[91mCaught: %s\n", fault_type);
 }

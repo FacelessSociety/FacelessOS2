@@ -26,8 +26,10 @@
 #ifndef PANIC_H
 #define PANIC_H
 
+#include <stdint.h>
+
 
 void panic(const char* panic_msg);
-
+void cpu_panic(uint32_t vector_fired);
 
 #endif

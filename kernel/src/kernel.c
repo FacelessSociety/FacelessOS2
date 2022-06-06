@@ -92,12 +92,11 @@ static void init(struct stivale2_struct* ss) {
 
     log_init(term_write_ptr);
     gdt_load();
-    kwrite("Global Descriptor Table loaded.\n");
+    log(KINFO "Global Descriptor Table loaded.\n");
     idt_install();
-    kwrite("Interrupt Descriptor Table loaded.\n");
+    log(KINFO "Interrupt Descriptor Table loaded.\n");
     pmm_init(ss);
     vmm_init(ss);
-    kwrite("YES!\n");
 }
 
 

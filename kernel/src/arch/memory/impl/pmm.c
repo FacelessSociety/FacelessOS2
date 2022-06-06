@@ -89,7 +89,7 @@ void pmm_init(struct stivale2_struct* ss) {
                 current_entry->base + current_entry->length, 
                 current_entry->length);
 
-        if (current_entry->type != STIVALE2_MMAP_USABLE) {
+        if (current_entry->type != STIVALE2_MMAP_USABLE || current_entry->type == STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE || current_entry->type == STIVALE2_MMAP_KERNEL_AND_MODULES) {
             // Log the status of the memory and continue.
             log(DBG_RED "[Reserved]\n");
             continue;

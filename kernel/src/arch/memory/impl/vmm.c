@@ -108,6 +108,12 @@ uint8_t unmap_page(void* logical) {
 void vmm_init(struct stivale2_struct* ss) {
     pml4 = pmm_allocz();
 
-    __asm__ __volatile__("mov %%cr3, %0" : "=r" (pml4));
+    // Copy CR3 into our PML4.
+    __asm__ __volatile__("mov %%cr3, %0" : "=r" (pml4)); 
+
+    // Unmap the NULL address.
+    unmap_page(0x0);
+
+    // Put the PML4 back into CR3.
     __asm__ __volatile__("mov %0, %%cr3" :: "r" (pml4));
 }

@@ -65,3 +65,28 @@ uint8_t pci_get_device_class(uint8_t bus, uint8_t slot, uint8_t func) {
 uint8_t pci_get_device_subclass(uint8_t bus, uint8_t slot, uint8_t func) {
     return pci_read_word(bus, slot, func, 0xA);
 }
+
+
+struct PCIDevice locate_pci_device(uint8_t classid, uint8_t subclassid) {
+    struct PCIDevice dev;
+
+    for (uint16_t bus = 0; bus < 256; ++bus) {
+        for (uint8_t slot = 0; slot < 32; ++slot) {
+            for (uint8_t func = 0; func < 8; ++func) {
+                if (pci_get_device_class(bus, slot, func) == classid && pci_get_device_subclass(bus, slot, func) == subclassid) {
+                    // Device has been found!
+                    dev.bus = bus;
+                    dev.slot = slot;
+                    dev.func = func;
+                    dev.valid = 1;
+                    return dev;
+                }
+            }
+        }
+    }
+
+
+    // Device not found.
+    dev.valid = 0;
+    return dev;
+}

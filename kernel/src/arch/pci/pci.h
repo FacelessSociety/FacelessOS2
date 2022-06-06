@@ -27,10 +27,20 @@
 
 #include <stdint.h>
 
+
+struct PCIDevice {
+    uint8_t bus;
+    uint8_t slot;
+    uint8_t func;
+    uint8_t valid : 1;
+};
+
+
 uint16_t pci_read_word(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 uint16_t pci_get_device_vendorid(uint8_t bus, uint8_t slot, uint8_t func);
 uint16_t pci_get_device_id(uint8_t bus, uint8_t slot, uint8_t func);
 uint8_t pci_get_device_class(uint8_t bus, uint8_t slot, uint8_t func);
 uint8_t pci_get_device_subclass(uint8_t bus, uint8_t slot, uint8_t func);
+struct PCIDevice locate_pci_device(uint8_t classid, uint8_t subclassid);
 
 #endif

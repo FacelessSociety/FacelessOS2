@@ -98,7 +98,7 @@ static void init(struct stivale2_struct* ss) {
     pmm_init(ss);
     log(KINFO "Finished setting up PMM.\n");
     vmm_init(ss);
-    log(KINFO "Finished setting up VMM.");
+    log(KINFO "Finished setting up VMM.\n");
 }
 
 

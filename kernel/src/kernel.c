@@ -96,7 +96,9 @@ static void init(struct stivale2_struct* ss) {
     idt_install();
     log(KINFO "Interrupt Descriptor Table loaded.\n");
     pmm_init(ss);
+    log(KINFO "PMM all setup.\n");
     vmm_init(ss);
+    log(KINFO "VMM all setup.\n");
 }
 
 

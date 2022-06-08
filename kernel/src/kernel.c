@@ -32,6 +32,7 @@
 #include <arch/memory/pmm.h>
 #include <arch/memory/vmm.h>
 #include <arch/interrupts/IDT.h>
+#include <power/acpi/acpi.h>
 
 
 void* get_tag(struct stivale2_struct* stivale2_struct, uint64_t id) {
@@ -99,6 +100,8 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "Finished setting up PMM.\n");
     vmm_init(ss);
     log(KINFO "Finished setting up VMM.\n");
+    acpi_init(ss);
+    log(KINFO "ACPI related stuff has been setup.\n");
 }
 
 

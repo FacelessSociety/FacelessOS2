@@ -29,6 +29,6 @@
 
 
 void pit_init(uint32_t freq_hz);
-void sleep(uint32_t n_ticks);
+void pit_sleep(uint32_t n_ticks);
 
 #endif

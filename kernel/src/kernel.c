@@ -31,6 +31,7 @@
 #include <arch/memory/gdt.h>
 #include <arch/memory/pmm.h>
 #include <arch/memory/vmm.h>
+#include <arch/memory/kheap.h>
 #include <arch/interrupts/IDT.h>
 #include <arch/timer/pit.h>
 #include <arch/cpu/smp.h>
@@ -113,6 +114,8 @@ static void init(struct stivale2_struct* ss) {
     __asm__ __volatile__("sti");
     cpu_wakeup_cores();
     log(KINFO "All CPU cores are now active!\n");
+    kheap_init();
+    log(KINFO "Heap created.\n");
 }
 
 

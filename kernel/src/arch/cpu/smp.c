@@ -37,12 +37,12 @@ uint8_t cpu_detect_cores(void) {
 
     while (p < end) {
         apic_header_t* header = (apic_header_t*)p;
+        if (header->length == 0) break;
         
         if (header->type == APIC_TYPE_LOCAL_APIC) {
             ++ncores;
         };
 
-        if (header->length == 0) break;
         p += header->length;
     }
 

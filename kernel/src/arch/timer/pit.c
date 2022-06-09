@@ -32,3 +32,11 @@ void pit_init(uint32_t freq_hz) {
     outportb(0x40, divisor & 0xFF);
     outportb(0x40, divisor >> 8);
 }
+
+// Puts a thread to sleep.
+void pit_sleep(uint32_t n_ticks) {
+    extern uint32_t pit_ticks;
+    uint64_t e_ticks = pit_ticks + n_ticks;
+
+    while (pit_ticks < e_ticks);
+}

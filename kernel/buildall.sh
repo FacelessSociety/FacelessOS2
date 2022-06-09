@@ -15,7 +15,7 @@ do
 	    -mcmodel=kernel      \
 	    -MMD                 \
         -Werror-implicit-function-declaration \
-        -I src               \
+        -I include            \
         -c                   \
         -o $i.o
 done

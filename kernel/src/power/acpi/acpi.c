@@ -36,7 +36,6 @@
 acpi_madt_t* madt = NULL;
 static acpi_rsdt_t* rsdt = NULL;
 static int rsdt_entries = 0;
-static uint8_t using_madt = 1;
 static uint8_t n_cores = 0;
 uint8_t* local_apic_addr = NULL;
 
@@ -144,8 +143,7 @@ void acpi_init(struct stivale2_struct* ss) {
 
     // Locate MADT.
     if ((madt = get_madt()) == NULL) {
-        log(KINFO "MADT not found! Using legacy mode..\n");
-        using_madt = 0;
+        panic("Could not locate MADT!");
     } else {
         log(KINFO "MADT found!\n");
     }

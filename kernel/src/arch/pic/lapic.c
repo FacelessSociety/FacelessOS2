@@ -130,7 +130,15 @@ void lapic_send_init(uint32_t apic_id) {
 
 void lapic_send_startup(uint32_t apic_id, uint32_t vector) {
     lapic_write(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
-    lapic_write(LAPIC_ICRLO, vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND);
+    lapic_write(LAPIC_ICRLO, vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_SELF);
+    log(KINFO "ICR send pending..\n");
+    while (lapic_read(LAPIC_ICRLO) & ICR_SEND_PENDING);
+}
+
+
+void lapic_send_ipi(uint32_t apic_id, uint32_t vector) {
+    lapic_write(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
+    lapic_write(LAPIC_ICRLO, vector | ICR_FIXED | ICR_PHYSICAL | ICR_ASSERT);
     log(KINFO "ICR send pending..\n");
     while (lapic_read(LAPIC_ICRLO) & ICR_SEND_PENDING);
 }

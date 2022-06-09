@@ -50,6 +50,16 @@ struct __attribute__((packed)) IDTR {
 };
 
 
+struct __attribute__((packed)) InterruptStackFrame {
+    uint64_t error_code;
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t rflags;
+    uint64_t rsp;
+    uint64_t ss;
+};
+
+
 void idt_install(void);
 void setup_general_interrupts(void);
 

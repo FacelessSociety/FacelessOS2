@@ -28,6 +28,7 @@
 #include <libkern/string.h>
 #include <debug/log.h>
 #include <arch/cpu/smp.h>
+#include <arch/pic/lapic.h>
 
 #define MAX_NEEDED_CORES 16
 
@@ -37,6 +38,7 @@ static acpi_rsdt_t* rsdt = NULL;
 static int rsdt_entries = 0;
 static uint8_t using_madt = 1;
 static uint8_t n_cores = 0;
+uint8_t* local_apic_addr = NULL;
 
 __attribute__((section(".data"))) uint8_t acpi_cpuids[MAX_NEEDED_CORES];
 void* io_apic_ptr = 0;
@@ -76,6 +78,7 @@ static void parse_madt(void) {
 
     // Index for the acpi_cpuids array.
     uint8_t cpuid_idx = 0;
+    local_apic_addr = (uint8_t*)(uint64_t)madt->lapic_addr;
 
     while (p < end) {
         apic_header_t* header = (apic_header_t*)p;
@@ -148,6 +151,8 @@ void acpi_init(struct stivale2_struct* ss) {
     }
 
     parse_madt();
+    init_lapic();
+    log(KINFO "LAPIC on BSP all setup.\n");
 
     uint32_t cores = cpu_detect_cores();
 

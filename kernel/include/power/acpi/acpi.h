@@ -36,5 +36,6 @@
 void acpi_init(struct stivale2_struct* ss);
 
 extern acpi_madt_t* madt;
+extern uint8_t* local_apic_addr;
 
 #endif

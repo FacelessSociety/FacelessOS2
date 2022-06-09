@@ -29,6 +29,7 @@
 #include <debug/log.h>
 #include <arch/cpu/smp.h>
 #include <arch/pic/lapic.h>
+#include <arch/pic/ioapic.h>
 
 #define MAX_NEEDED_CORES 16
 
@@ -54,6 +55,8 @@ static uint8_t rsdt_is_valid(void) {
 
     return sum % 0x100 == 0;
 }
+
+
 
 
 static acpi_madt_t* get_madt(void) {
@@ -126,6 +129,27 @@ static void parse_madt(void) {
     }
 }
 
+uint32_t acpi_remap_irq(uint32_t irq) {
+    uint8_t* p = (uint8_t*)(madt + 1);
+    uint8_t* end = (uint8_t*)(madt + madt->header.length);
+
+    while (p < end) {
+        apic_header_t* header = (apic_header_t*)p;
+        if (header->length == 0) break;
+
+        if (header->type == APIC_TYPE_INTERRUPT_OVERRIDE) {
+            apic_interrupt_override_t* int_override = (apic_interrupt_override_t*)p;
+
+            if (int_override->source == irq)
+                return int_override->interrupt;
+        }
+
+        p += header->length;
+    }
+
+    return irq;
+}
+
 
 void acpi_init(struct stivale2_struct* ss) {
     struct stivale2_struct_tag_rsdp* rsdp_tg = get_tag(ss, STIVALE2_STRUCT_TAG_RSDP_ID);
@@ -149,8 +173,15 @@ void acpi_init(struct stivale2_struct* ss) {
     }
 
     parse_madt();
+
+    // Init LAPIC.
     init_lapic();
     log(KINFO "LAPIC on BSP all setup.\n");
+
+    // Init I/O APIC.
+    ioapic_init();
+    log(KINFO "I/O APIC has been initialized.\n");
+    
 
     uint32_t cores = cpu_detect_cores();
 

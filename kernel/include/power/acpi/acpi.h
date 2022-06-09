@@ -34,8 +34,10 @@
 #define APIC_TYPE_INTERRUPT_OVERRIDE 2
 
 void acpi_init(struct stivale2_struct* ss);
+uint32_t acpi_remap_irq(uint32_t irq);
 
 extern acpi_madt_t* madt;
 extern uint8_t* local_apic_addr;
+extern void* io_apic_ptr;
 
 #endif

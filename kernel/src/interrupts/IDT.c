@@ -24,6 +24,9 @@
 
 #include <arch/interrupts/IDT.h>
 #include <arch/interrupts/exceptions.h>
+#include <arch/interrupts/irq.h>
+#include <arch/pic/ioapic.h>
+#include <power/acpi/acpi.h>
 
 #define TRAP_GATE_FLAGS 0x8F
 #define INT_GATE_FLAGS 0x8E
@@ -77,8 +80,21 @@ static void setup_exceptions(void) {
 }
 
 
+static void setup_irqs(void) {
+    set_idt_desc(0x20, irq0, INT_GATE_FLAGS);
+}
+
+
+// Setups entries in IOAPIC.
+void setup_general_interrupts(void) { 
+    // Enable I/O APIC entries.
+    ioapic_set_entry(acpi_remap_irq(0), 0x20);          // Timer IRQ.
+}
+
+
 void idt_install(void) {
     setup_exceptions();
+    setup_irqs();
     idtr.limit = sizeof(struct IDTGateDescriptor) * 255;
     idtr.base = (uint64_t)&idt;
     __asm__ __volatile__("lidt %0" :: "m" (idtr));

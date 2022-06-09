@@ -23,34 +23,11 @@
  */
 
 
-#ifndef IDT_H
-#define IDT_H
-
-#include <stdint.h>
+#ifndef IRQ_H
+#define IRQ_H
 
 
-struct __attribute__((packed)) IDTGateDescriptor { 
-    uint16_t isr_low;       // Low 16 bytes of ISR address/
-    uint16_t cs;            // Code segment ISR is in.
-    uint8_t ist : 3;
-    uint8_t reserved : 5;
-    uint8_t attr : 4;
-    uint8_t reserved1 : 1;
-    uint8_t dpl : 2;        // Descriptor privilege level.
-    uint8_t p : 1;          // Present.
-    uint16_t isr_middle;    // Middle 16 bits of ISR.
-    uint32_t isr_high;      // High 32 bits of ISR.
-    uint32_t reserved2; 
-};
+void irq0(void);
 
-
-struct __attribute__((packed)) IDTR {
-    uint16_t limit;
-    uint64_t base;
-};
-
-
-void idt_install(void);
-void setup_general_interrupts(void);
 
 #endif

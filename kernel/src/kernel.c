@@ -32,7 +32,10 @@
 #include <arch/memory/pmm.h>
 #include <arch/memory/vmm.h>
 #include <arch/interrupts/IDT.h>
+#include <arch/timer/pit.h>
 #include <power/acpi/acpi.h>
+
+#define PIT_FREQ_HZ 100
 
 
 void* get_tag(struct stivale2_struct* stivale2_struct, uint64_t id) {
@@ -100,8 +103,13 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "Finished setting up PMM.\n");
     vmm_init(ss);
     log(KINFO "Finished setting up VMM.\n");
+    pit_init(PIT_FREQ_HZ);
+    log(KINFO "PIT setup at %dHz\n", PIT_FREQ_HZ);
     acpi_init(ss);
     log(KINFO "ACPI related stuff has been setup.\n");
+    setup_general_interrupts();
+    log(KINFO "General interrupts have been setup.\n");
+    __asm__ __volatile__("sti");
 }
 
 

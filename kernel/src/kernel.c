@@ -108,7 +108,7 @@ static void init(struct stivale2_struct* ss) {
     acpi_init(ss);
     log(KINFO "ACPI related stuff has been setup.\n");
     setup_general_interrupts();
-    log(KINFO "General interrupts have been setup.\n");
+    log(KINFO "General interrupts have been setup.\n"); 
     __asm__ __volatile__("sti");
 }
 

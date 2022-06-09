@@ -35,7 +35,6 @@
 
 void acpi_init(struct stivale2_struct* ss);
 
-
 extern acpi_madt_t* madt;
 
 #endif

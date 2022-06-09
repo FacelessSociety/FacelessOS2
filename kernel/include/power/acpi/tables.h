@@ -187,4 +187,28 @@ typedef struct {
     uint8_t length;
 } __attribute__((packed)) apic_header_t;
 
+typedef struct {
+    apic_header_t header;
+    uint8_t processor_id;
+    uint8_t apic_id;
+    uint32_t flags;
+} __attribute__((packed)) local_apic_t;
+
+
+typedef struct {
+    apic_header_t header;
+    uint8_t io_apic_id;
+    uint8_t reserved;
+    uint32_t io_apic_addr;
+    uint32_t global_system_interrupt_base;
+} __attribute__((packed)) io_apic_t;
+
+typedef struct {
+    apic_header_t header;
+    uint8_t bus;
+    uint8_t source;
+    uint32_t interrupt;
+    uint16_t flags;
+} __attribute__((packed)) apic_interrupt_override_t;
+
 #endif

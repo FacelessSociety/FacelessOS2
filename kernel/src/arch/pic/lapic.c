@@ -97,6 +97,11 @@ static void lapic_write(uint32_t reg, uint32_t data) {
     *(volatile uint32_t*)(local_apic_addr + reg) = data;
 }
 
+
+void lapic_send_eoi(void) {
+    lapic_write(LAPIC_EOI, 0);
+}
+
 void init_lapic(void) {
     // Clear Task Priority Register to enable interrupts.
     lapic_write(LAPIC_TPR, 0);

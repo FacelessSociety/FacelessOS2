@@ -27,5 +27,6 @@
 #define LAPIC_H
 
 void init_lapic(void);
+void lapic_send_eoi(void);
 
 #endif

@@ -31,9 +31,6 @@
 #include <arch/pic/lapic.h>
 #include <arch/pic/ioapic.h>
 
-#define MAX_NEEDED_CORES 16
-
-
 acpi_madt_t* madt = NULL;
 static acpi_rsdt_t* rsdt = NULL;
 static int rsdt_entries = 0;

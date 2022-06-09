@@ -23,6 +23,8 @@
  */
 
 #include <arch/cpu/smp.h>
+#include <arch/pic/lapic.h>
+#include <arch/timer/pit.h>
 #include <power/acpi/acpi.h>
 #include <debug/log.h>
 
@@ -47,4 +49,35 @@ uint8_t cpu_detect_cores(void) {
     }
 
     return ncores;
+}
+
+
+void cpu_wakeup_cores(void) {
+    log("Waking up all cores.\n");
+    log("WAKE UP CORES!!!!!!!\n");
+
+    // Send INIT to all cores except BSP.
+    for (uint32_t i = 0; i < ncores; ++i) {
+        uint32_t apic_id = acpi_cpuids[i];
+
+        if (apic_id != lapic_get_id()) {
+            lapic_send_init(apic_id);
+        }
+
+        pit_sleep(50);
+
+        // Send startup to all cores except BSP.
+
+        for (uint32_t i = 0; i < ncores; ++i) {
+            uint32_t apic_id = acpi_cpuids[i];
+
+            if (apic_id != lapic_get_id()) {
+                lapic_send_startup(apic_id, 0x8);
+            }
+        }
+
+        // Wait for all cores to be active.
+
+        pit_sleep(300);
+    }
 }

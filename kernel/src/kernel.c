@@ -33,6 +33,7 @@
 #include <arch/memory/vmm.h>
 #include <arch/interrupts/IDT.h>
 #include <arch/timer/pit.h>
+#include <arch/cpu/smp.h>
 #include <power/acpi/acpi.h>
 
 #define PIT_FREQ_HZ 100
@@ -110,6 +111,8 @@ static void init(struct stivale2_struct* ss) {
     setup_general_interrupts();
     log(KINFO "General interrupts have been setup.\n"); 
     __asm__ __volatile__("sti");
+    cpu_wakeup_cores();
+    log(KINFO "All CPU cores are now active!\n");
 }
 
 

@@ -24,7 +24,7 @@
 
 #include <arch/pic/lapic.h>
 #include <power/acpi/acpi.h>
-#include <stdint.h>
+#include <debug/log.h>
 
 // LAPIC registers.
 #define LAPIC_ID                        0x0020  // Local APIC ID
@@ -112,4 +112,25 @@ void init_lapic(void) {
     
     // Setup the Spurious Interrupt Vector Register.
     lapic_write(LAPIC_SVR, 0x100 | 0xFF);
+}
+
+
+uint32_t lapic_get_id(void) {
+    return lapic_read(LAPIC_ID) >> 24;
+}
+
+
+void lapic_send_init(uint32_t apic_id) {
+    lapic_write(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
+    lapic_write(LAPIC_ICRLO, ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND);
+
+    log(KINFO "ICR send pending..\n");
+    while (lapic_read(LAPIC_ICRLO) & ICR_SEND_PENDING);
+}
+
+void lapic_send_startup(uint32_t apic_id, uint32_t vector) {
+    lapic_write(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
+    lapic_write(LAPIC_ICRLO, vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND);
+    log(KINFO "ICR send pending..\n");
+    while (lapic_read(LAPIC_ICRLO) & ICR_SEND_PENDING);
 }

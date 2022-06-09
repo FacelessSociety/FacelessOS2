@@ -32,6 +32,7 @@
 #define APIC_TYPE_LOCAL_APIC 0
 #define APIC_TYPE_IO_APIC 1
 #define APIC_TYPE_INTERRUPT_OVERRIDE 2
+#define MAX_NEEDED_CORES 16
 
 void acpi_init(struct stivale2_struct* ss);
 uint32_t acpi_remap_irq(uint32_t irq);
@@ -39,5 +40,6 @@ uint32_t acpi_remap_irq(uint32_t irq);
 extern acpi_madt_t* madt;
 extern uint8_t* local_apic_addr;
 extern void* io_apic_ptr;
+extern uint8_t acpi_cpuids[MAX_NEEDED_CORES];
 
 #endif

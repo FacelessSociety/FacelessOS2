@@ -30,6 +30,6 @@
 
 
 uint8_t cpu_detect_cores(void);
-
+void cpu_wakeup_cores(void);
 
 #endif

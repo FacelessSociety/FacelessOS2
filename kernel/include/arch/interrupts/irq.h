@@ -26,8 +26,11 @@
 #ifndef IRQ_H
 #define IRQ_H
 
+#include <stdint.h>
+#include <arch/interrupts/IDT.h>
 
-void irq0(void);
+
+__attribute__((interrupt)) void irq0(struct InterruptStackFrame* stack_frame);
 
 
 #endif

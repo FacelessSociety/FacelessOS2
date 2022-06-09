@@ -78,6 +78,6 @@ void cpu_wakeup_cores(void) {
 
         // Wait for all cores to be active.
 
-        pit_sleep(300);
+        pit_sleep(50);
     }
 }

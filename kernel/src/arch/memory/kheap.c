@@ -27,7 +27,7 @@
 #include <libkern/panic.h>
 
 #define KHEAP_START 0x500
-#define KHEAP_LIMIT 0x1000-1
+#define KHEAP_LIMIT 0x5000-1
 #define KHEAP_END 0x500+(KHEAP_LIMIT+1)
 #define KHEAP_MAGIC 0xCA75101               // CATS LOL
 
@@ -56,6 +56,8 @@ void kheap_init(void) {
 
 
 static struct Block* first_fit(size_t size) {
+    map_page((void*)KHEAP_START + mem_allocated, PAGE_BIT_P_PRESENT | PAGE_BIT_RW_WRITABLE);
+
     // No memory is left!
     if (mem_allocated + size >= KHEAP_LIMIT) {
         return NULL;

@@ -24,6 +24,7 @@
 
 #include <arch/memory/vmm.h>
 #include <arch/memory/pmm.h>
+#include <arch/memory/kheap.h>
 #include <libkern/string.h>
 #include <debug/log.h>
 
@@ -81,7 +82,6 @@ void map_page(void* logical, unsigned int flags) {
 }
 
 
-
 uint8_t unmap_page(void* logical) {
     uint64_t addr = (uint64_t)logical;
     if (addr % 0x1000 != 0) return 0;           // Return 0 (false) if address is not page aligned.
@@ -102,6 +102,21 @@ uint8_t unmap_page(void* logical) {
     }
 
     return 1;
+}
+
+
+void* mkpml4(void) {
+    struct MappingTable* alloc = kmalloc(sizeof(struct MappingTable));
+
+    strncpy((void*)alloc, (void*)pml4, PAGE_SIZE);
+
+    __asm__ __volatile__("mov %%cr3, %0" : "=r" (alloc)); 
+    return alloc;
+}
+
+
+void load_pml4(void* pml4) {
+    __asm__ __volatile__("mov %0, %%cr3" :: "r" (pml4));
 }
 
 

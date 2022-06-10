@@ -41,6 +41,7 @@
 
 void map_page(void* logical, unsigned int flags);
 void vmm_init(struct stivale2_struct* ss);
-
+void* mkpml4(void);
+void load_pml4(void* pml4);
 
 #endif

@@ -35,4 +35,10 @@ void thread_switch(void* ret_rip);
 void* get_rip(void);
 int fork(void);
 
+// Stuff to prevent concurrent threads
+// from doing a funny.
+
+void mutex_lock(uint8_t* lock);
+void mutex_unlock(uint8_t* lock);
+
 #endif

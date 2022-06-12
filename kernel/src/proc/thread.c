@@ -115,7 +115,6 @@ int fork(void) {
  */
 
 void kill(PID pid) {
-    __asm__ __volatile__("cli");
     mutex_lock(&lock);
     struct ThreadControlBlock* tmp = root_thread;
 
@@ -135,10 +134,17 @@ void kill(PID pid) {
 void thread_switch(void* ret_rip) {
     if (root_thread == NULL) return;
     
-    get_thread(running_thread++)->rip = ret_rip;
-
-    while (get_thread(running_thread)->killed)
+    if (get_thread(running_thread)->killed) {
         ++running_thread;
+
+        uint8_t lock = 0;
+        spinlock(&lock);
+    }
+
+
+    mutex_unlock(&lock);
+
+    get_thread(running_thread++)->rip = ret_rip;
 
     __asm__ __volatile__(
             "sti; \

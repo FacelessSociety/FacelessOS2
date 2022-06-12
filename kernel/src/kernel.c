@@ -123,6 +123,9 @@ static void init(struct stivale2_struct* ss) {
     PID pid = fork();
     kill(pid);
     log("A");
+
+    kill(0);
+    log("B");
 }
 
 

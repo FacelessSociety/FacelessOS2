@@ -113,6 +113,7 @@ int fork(void) {
  * that should be killed.
  *
  */
+
 void kill(PID pid) {
     __asm__ __volatile__("cli");
     mutex_lock(&lock);

@@ -33,6 +33,6 @@ typedef uint16_t PID;
 void init_multithreading(void);
 void thread_switch(void* ret_rip);
 void* get_rip(void);
-
+int fork(void);
 
 #endif

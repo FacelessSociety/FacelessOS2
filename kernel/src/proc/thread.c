@@ -55,14 +55,41 @@ static struct ThreadControlBlock* get_thread(PID pid) {
 }
 
 
+int fork(void) {
+    __asm__ __volatile__("cli");
+    struct ThreadControlBlock* parent_thread = get_thread(running_thread);
+
+    struct ThreadControlBlock* child_thread = kmalloc(sizeof(struct ThreadControlBlock));
+    child_thread->pid = next_pid++;
+    child_thread->next = NULL;
+    child_thread->rip = __builtin_extract_return_addr(__builtin_return_address(0));
+
+    struct ThreadControlBlock* tmp = root_thread;
+
+    while (tmp->next)
+        tmp = tmp->next;
+
+    tmp->next = child_thread;
+
+    /*
+    if (get_thread(running_thread) == parent_thread) {
+
+    }
+    */
+
+    __asm__ __volatile__("sti");
+    return child_thread->pid;
+}
+
+
 void thread_switch(void* ret_rip) {
     if (root_thread == NULL) return;
     
-    get_thread(running_thread)->rip = ret_rip;
+    get_thread(running_thread++)->rip = ret_rip;
 
     __asm__ __volatile__(
             "sti; \
-            jmp *%0" :: "r" (get_thread(running_thread++)->rip));
+            jmp *%0" :: "r" (get_thread(running_thread)->rip));
 }
 
 

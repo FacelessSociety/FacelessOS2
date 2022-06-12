@@ -27,6 +27,7 @@
 #include <stddef.h>
 #include <libkern/stivale2.h>
 #include <libkern/panic.h>
+#include <libkern/asm.h>
 #include <debug/log.h>
 #include <arch/memory/gdt.h>
 #include <arch/memory/pmm.h>
@@ -112,7 +113,7 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "ACPI related stuff has been setup.\n");
     setup_general_interrupts();
     log(KINFO "General interrupts have been setup.\n"); 
-    __asm__ __volatile__("sti");
+    STI;           // Enable interrupts.
     cpu_wakeup_cores();
     log(KINFO "All CPU cores are now active!\n");
     kheap_init();
@@ -128,6 +129,6 @@ void _start(struct stivale2_struct* stivale2_struct) {
     init(stivale2_struct);
 
     while (1) {
-        __asm__ __volatile__("hlt");
+        HLT;
     }
 }

@@ -142,6 +142,11 @@ void thread_switch(void* ret_rip) {
     }
 
 
+    /*
+     * Doing a mutex unlock in case lock was set
+     * by kill().
+     *
+     */
     mutex_unlock(&lock);
 
     get_thread(running_thread++)->rip = ret_rip;

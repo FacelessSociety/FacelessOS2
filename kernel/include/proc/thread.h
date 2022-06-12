@@ -34,5 +34,7 @@ void init_multithreading(void);
 void thread_switch(void* ret_rip);
 void* get_rip(void);
 int fork(void);
+void mutex_lock(uint8_t* lock);
+void mutex_unlock(uint8_t* lock);
 
 #endif

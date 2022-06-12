@@ -55,6 +55,15 @@ static struct ThreadControlBlock* get_thread(PID pid) {
 }
 
 
+void mutex_lock(uint8_t* lock) {
+    while (__atomic_test_and_set(lock, __ATOMIC_ACQUIRE));
+}
+
+void mutex_unlock(uint8_t* lock) {
+    __atomic_clear(lock, __ATOMIC_RELEASE);
+}
+
+
 int fork(void) {
     __asm__ __volatile__("cli");
     struct ThreadControlBlock* parent_thread = get_thread(running_thread);

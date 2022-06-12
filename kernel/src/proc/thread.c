@@ -68,6 +68,17 @@ void mutex_unlock(uint8_t* lock) {
 }
 
 
+void spinlock(uint8_t* lock) {
+    *lock = 1;
+    while (*lock);
+}
+
+
+void spinunlock(uint8_t* lock) {
+    *lock = 0;
+}
+
+
 int fork(void) {
     __asm__ __volatile__("cli");
     struct ThreadControlBlock* parent_thread = get_thread(running_thread);

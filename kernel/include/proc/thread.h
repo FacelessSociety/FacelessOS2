@@ -41,6 +41,9 @@ int fork(void);
 void mutex_lock(uint8_t* lock);
 void mutex_unlock(uint8_t* lock);
 
+void spinlock(uint8_t* lock);
+void spinunlock(uint8_t* lock);
+
 void kill(PID pid);
 
 #endif

@@ -27,6 +27,7 @@
 #include <stddef.h>
 #include <libkern/stivale2.h>
 #include <libkern/panic.h>
+#include <libkern/asm.h>
 #include <debug/log.h>
 #include <arch/memory/gdt.h>
 #include <arch/memory/pmm.h>
@@ -36,6 +37,7 @@
 #include <arch/timer/pit.h>
 #include <arch/cpu/smp.h>
 #include <power/acpi/acpi.h>
+#include <proc/thread.h>
 
 #define PIT_FREQ_HZ 100
 
@@ -92,7 +94,8 @@ static void init(struct stivale2_struct* ss) {
 
     if (term_str_tag == NULL) {
         while (1) {
-            __asm__ __volatile__("cli; hlt");
+            CLI;
+            HLT;
         }
     }
 
@@ -111,11 +114,13 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "ACPI related stuff has been setup.\n");
     setup_general_interrupts();
     log(KINFO "General interrupts have been setup.\n"); 
-    __asm__ __volatile__("sti");
+    STI;
     cpu_wakeup_cores();
     log(KINFO "All CPU cores are now active!\n");
     kheap_init();
     log(KINFO "Heap created.\n");
+    threading_init();
+    log("Threading setup!");
 }
 
 
@@ -123,6 +128,6 @@ void _start(struct stivale2_struct* stivale2_struct) {
     init(stivale2_struct);
 
     while (1) {
-        __asm__ __volatile__("hlt");
+        HLT;
     }
 }

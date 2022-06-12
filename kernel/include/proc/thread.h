@@ -22,24 +22,50 @@
  *  SOFTWARE.
  */
 
+#ifndef THREAD_H
+#define THREAD_H
 
-#include <arch/interrupts/irq.h>
-#include <proc/thread.h>
-#include <libkern/asm.h>
-#include <arch/pic/lapic.h>
+#include <stdint.h>
 
-uint32_t pit_ticks = 0;
+typedef uint16_t PID;
+
+struct ThreadControlBlock {
+    PID pid;
+    void* rip;
+    uint16_t flags;
+    struct ThreadControlBlock* next;
+    struct ThreadControlBlock* prev;
+};
 
 
-__attribute__((interrupt)) void irq0(struct InterruptStackFrame* stack_frame) {
-    CLI;
-    pit_ticks++;
-    lapic_send_eoi();
+typedef enum {
+    THREAD_KILLED = (1 << 0)
+} THREAD_FLAG;
 
-    if (is_threading_setup()) {
-        STI;
-        context_switch(__builtin_extract_return_addr(__builtin_return_address(0)));
-    }
 
-    STI;
-}
+void threading_init(void);
+
+
+// Used by IRQ0 handler.
+uint8_t is_threading_setup(void);
+
+/*
+ * Context switches to the next
+ * thread.
+ *
+ * @rip: Instruction pointer
+ *    to update the CURRENTLY running
+ *    thread with.
+ *
+ *    Should be NULL if you just want to 
+ *    go to the next thread.
+ *
+ * Returns the PID of the thread that 
+ * it switched to.
+ *
+ */
+
+__attribute__((noreturn)) PID context_switch(void* rip);
+PID get_pid(void);
+
+#endif

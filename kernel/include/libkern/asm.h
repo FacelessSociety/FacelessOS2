@@ -22,24 +22,12 @@
  *  SOFTWARE.
  */
 
+#ifndef ASM_H
+#define ASM_H
 
-#include <arch/interrupts/irq.h>
-#include <proc/thread.h>
-#include <libkern/asm.h>
-#include <arch/pic/lapic.h>
-
-uint32_t pit_ticks = 0;
+#define CLI __asm__ __volatile__("cli")
+#define STI __asm__ __volatile__("sti")
+#define HLT __asm__ __volatile__("hlt")
 
 
-__attribute__((interrupt)) void irq0(struct InterruptStackFrame* stack_frame) {
-    CLI;
-    pit_ticks++;
-    lapic_send_eoi();
-
-    if (is_threading_setup()) {
-        STI;
-        context_switch(__builtin_extract_return_addr(__builtin_return_address(0)));
-    }
-
-    STI;
-}
+#endif

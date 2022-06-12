@@ -22,18 +22,17 @@
  *  SOFTWARE.
  */
 
+#ifndef THREAD_H
+#define THREAD_H
 
-#include <arch/interrupts/irq.h>
-#include <arch/pic/lapic.h>
-#include <proc/thread.h>
-#include <debug/log.h>
+#include <stdint.h>
 
-uint32_t pit_ticks = 0;
-uint64_t rip;
+typedef uint16_t PID;
 
-__attribute__((interrupt)) void irq0(struct InterruptStackFrame* stack_frame) {
-    __asm__ __volatile__("cli");
-    pit_ticks++;
-    lapic_send_eoi();
-    thread_switch(__builtin_extract_return_addr(__builtin_return_address(0)));
-}
+
+void init_multithreading(void);
+void thread_switch(void* ret_rip);
+void* get_rip(void);
+
+
+#endif

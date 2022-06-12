@@ -22,18 +22,55 @@
  *  SOFTWARE.
  */
 
-
-#include <arch/interrupts/irq.h>
-#include <arch/pic/lapic.h>
 #include <proc/thread.h>
+#include <arch/memory/kheap.h>
 #include <debug/log.h>
 
-uint32_t pit_ticks = 0;
-uint64_t rip;
+static struct ThreadControlBlock {
+    void* rip;
+    PID pid;
+    struct ThreadControlBlock* next;
+} *root_thread = NULL;
 
-__attribute__((interrupt)) void irq0(struct InterruptStackFrame* stack_frame) {
-    __asm__ __volatile__("cli");
-    pit_ticks++;
-    lapic_send_eoi();
-    thread_switch(__builtin_extract_return_addr(__builtin_return_address(0)));
+PID next_pid = 0;
+PID running_thread = 0;
+
+
+static struct ThreadControlBlock* get_thread(PID pid) {
+    struct ThreadControlBlock* tmp = root_thread;
+
+    while (tmp) {
+        if (tmp->pid == pid)
+            break;
+
+        tmp = tmp->next;
+    }
+
+    if (tmp == NULL) {
+        tmp = root_thread;
+        running_thread = 0;
+    }
+
+    return tmp;
+}
+
+
+void thread_switch(void* ret_rip) {
+    if (root_thread == NULL) return;
+    
+    get_thread(running_thread)->rip = ret_rip;
+
+    __asm__ __volatile__(
+            "sti; \
+            jmp *%0" :: "r" (get_thread(running_thread++)->rip));
+}
+
+
+void init_multithreading(void) {
+    // Allocate memory for a thread control block.
+    root_thread = kmalloc(sizeof(struct ThreadControlBlock));
+
+    // Setup the root thread.
+    root_thread->pid = next_pid++;
+    root_thread->next = NULL;
 }

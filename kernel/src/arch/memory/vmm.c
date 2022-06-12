@@ -104,6 +104,59 @@ uint8_t unmap_page(void* logical) {
     return 1;
 }
 
+/*
+ *  Maps a page from a specific PML4.
+ */
+
+void map_page_from(void* _pml4, void* logical, unsigned int flags) {
+    uint64_t addr = (uint64_t)logical;
+    flags |= PAGE_BIT_P_PRESENT;            // Make sure it is present.
+
+    struct MappingTable* pml4 = _pml4;
+
+    // Get indices from logical address.
+    int pml4_idx = (addr >> 39) & 0x1FF;
+    int pdpt_idx = (addr >> 30) & 0x1FF;
+    int pd_idx = (addr >> 21) & 0x1FF;
+    int pt_idx = (addr >> 12) & 0x1FF;
+
+    if (!(pml4->entries[pml4_idx] & PAGE_BIT_P_PRESENT)) {
+        // We did not define a PDPT for this entry in PML4.
+        uint64_t pdpt = (uint64_t)pmm_allocz();
+        memzero((void*)pdpt, PAGE_SIZE);
+        pml4->entries[pml4_idx] = (pdpt & PAGE_ADDR_MASK) | flags;
+        map_page((void*)pdpt, flags);
+    }
+
+    struct MappingTable* pdpt = (struct MappingTable*)(pml4->entries[pml4_idx] & PAGE_ADDR_MASK);
+
+    if (!(pdpt->entries[pdpt_idx] & PAGE_BIT_P_PRESENT)) {
+        // We did not define PDT for this PDPT entry, so allocate a page for the PDT.
+        uint64_t pdt = (uint64_t)pmm_allocz();
+        memzero((void*)pdt, PAGE_SIZE);
+        pdpt->entries[pdpt_idx] = (pdt & PAGE_ADDR_MASK) | flags;
+        map_page((void*)pdt, flags);
+    }
+
+
+    struct MappingTable* pdt = (struct MappingTable*)(pdpt->entries[pdpt_idx] & PAGE_ADDR_MASK);
+
+    if (!(pdt->entries[pd_idx] & PAGE_BIT_P_PRESENT)) {
+        // We did not define a PT for this PDT entry, so allocate a page for the PT.
+        uint64_t pt = (uint64_t)pmm_allocz();
+        memzero((void*)pt, PAGE_SIZE);
+        pdt->entries[pd_idx] = (pt & PAGE_ADDR_MASK) | flags;
+        map_page((void*)pt, flags);
+    }
+
+    struct MappingTable* pt = (struct MappingTable*)(pdt->entries[pd_idx] & PAGE_ADDR_MASK);
+
+    if (!(pt->entries[pt_idx] & PAGE_BIT_P_PRESENT)) {
+        pt->entries[pt_idx] = (addr & PAGE_ADDR_MASK) | flags;
+    }
+
+}
+
 
 void* mkpml4(void) {
     struct MappingTable* alloc = kmalloc(sizeof(struct MappingTable));
@@ -112,6 +165,25 @@ void* mkpml4(void) {
 
     __asm__ __volatile__("mov %%cr3, %0" : "=r" (alloc)); 
     return alloc;
+}
+
+
+/*
+ * Copies a PML4 and returns the copy.
+ *
+ * @pml4 must be NULL to copy the main PML4.
+ * otherwise have it as the PML4 you want to copy.
+ */
+
+void* copy_pml4(void* _pml4) {
+    struct MappingTable* new_pml4 = kmalloc(sizeof(struct MappingTable));
+
+    if (pml4 != NULL)
+        strncpy((void*)new_pml4, (void*)_pml4, PAGE_SIZE);
+    else
+        strncpy((void*)new_pml4, (void*)pml4, PAGE_SIZE);
+
+    return new_pml4;
 }
 
 

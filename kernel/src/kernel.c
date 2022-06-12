@@ -36,6 +36,7 @@
 #include <arch/timer/pit.h>
 #include <arch/cpu/smp.h>
 #include <power/acpi/acpi.h>
+#include <proc/thread.h>
 
 #define PIT_FREQ_HZ 100
 
@@ -116,6 +117,7 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "All CPU cores are now active!\n");
     kheap_init();
     log(KINFO "Heap created.\n");
+    init_multithreading();
 }
 
 

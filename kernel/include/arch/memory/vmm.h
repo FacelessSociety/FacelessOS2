@@ -40,6 +40,8 @@
 #define GB 0x40000000UL
 
 void map_page(void* logical, unsigned int flags);
+void map_page_from(void* _pml4, void* logical, unsigned int flags);
+void* copy_pml4(void* _pml4);
 void vmm_init(struct stivale2_struct* ss);
 void* mkpml4(void);
 void load_pml4(void* pml4);

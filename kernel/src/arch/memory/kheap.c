@@ -27,7 +27,7 @@
 #include <libkern/panic.h>
 
 #define KHEAP_START 0x500
-#define KHEAP_LIMIT 0x5000-1
+#define KHEAP_LIMIT 0x500+GB
 #define KHEAP_END 0x500+(KHEAP_LIMIT+1)
 #define KHEAP_MAGIC 0xCA75101               // CATS LOL
 

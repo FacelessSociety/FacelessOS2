@@ -51,7 +51,6 @@ struct __attribute__((packed)) IDTR {
 
 
 struct __attribute__((packed)) InterruptStackFrame {
-    uint64_t error_code;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;

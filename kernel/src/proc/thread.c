@@ -79,33 +79,6 @@ void spinunlock(uint8_t* lock) {
 }
 
 
-int fork(void) {
-    __asm__ __volatile__("cli");
-    struct ThreadControlBlock* parent_thread = get_thread(running_thread);
-
-    struct ThreadControlBlock* child_thread = kmalloc(sizeof(struct ThreadControlBlock));
-    child_thread->pid = next_pid++;
-    child_thread->next = NULL;
-    child_thread->rip = __builtin_extract_return_addr(__builtin_return_address(0));
-
-    struct ThreadControlBlock* tmp = root_thread;
-
-    while (tmp->next)
-        tmp = tmp->next;
-
-    tmp->next = child_thread;
-
-    /*
-    if (get_thread(running_thread) == parent_thread) {
-
-    }
-    */
-
-    __asm__ __volatile__("sti");
-    return child_thread->pid;
-}
-
-
 /*
  * Kills a thread.
  *
@@ -128,6 +101,12 @@ void kill(PID pid) {
 
         tmp = tmp->next;
     }
+
+    // Will not return.
+    // The timer IRQ will fire
+    // which will switch the threads.
+    // Until then, just spin here.
+    spinlock(&lock);
 }
 
 
@@ -144,7 +123,7 @@ void thread_switch(void* ret_rip) {
 
     /*
      * Doing a mutex unlock in case lock was set
-     * by kill().
+     * by kill() or fork().
      *
      */
     mutex_unlock(&lock);

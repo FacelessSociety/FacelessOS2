@@ -79,6 +79,7 @@ void spinunlock(uint8_t* lock) {
 }
 
 
+
 /*
  * Kills a thread.
  *
@@ -107,6 +108,42 @@ void kill(PID pid) {
     // which will switch the threads.
     // Until then, just spin here.
     spinlock(&lock);
+}
+
+/*
+ * Internal helper for creating a thread.
+ *
+ * @rip: instruction pointer to start at.
+ *
+ */
+static void mkthread(void* rip) {
+    __asm__ __volatile__("cli");
+    struct ThreadControlBlock* new_thread = kmalloc(sizeof(struct ThreadControlBlock));
+    new_thread->pid = next_pid++;
+    new_thread->killed = 0;
+    new_thread->rip = rip;
+    new_thread->next = NULL;
+
+    struct ThreadControlBlock* tmp = root_thread;
+
+    while (tmp->next)
+        tmp = tmp->next;
+
+    tmp->next = new_thread;
+    __asm__ __volatile__("sti");
+
+}
+
+
+// Just a wrapper around mkthread to create a
+// thread.
+void thread_create(void(*thread_entry)(void)) {
+    mkthread(thread_entry);
+}
+
+
+PID getpid(void) {
+    return running_thread;
 }
 
 

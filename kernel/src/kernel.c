@@ -88,6 +88,12 @@ static struct stivale2_header stivale_hdr = {
 };
 
 
+void test_routine(void) {
+    log("A");
+    THREAD_ROUTINE_END;
+}
+
+
 static void init(struct stivale2_struct* ss) {
     struct stivale2_struct_tag_terminal* term_str_tag = get_tag(ss, STIVALE2_STRUCT_TAG_TERMINAL_ID);
     void* term_write_ptr = (void*)term_str_tag->term_write;
@@ -119,8 +125,7 @@ static void init(struct stivale2_struct* ss) {
     kheap_init();
     log(KINFO "Heap created.\n");
     init_multithreading();
-
-    log("A");
+    thread_create(test_routine);
 }
 
 

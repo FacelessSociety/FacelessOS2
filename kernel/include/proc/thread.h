@@ -43,6 +43,35 @@ void mutex_unlock(uint8_t* lock);
 void spinlock(uint8_t* lock);
 void spinunlock(uint8_t* lock);
 
+
+/*
+ * Kills a process.
+ *
+ */
+
 void kill(PID pid);
+
+
+/*
+ *  Fetches the current PID.
+ */
+
+PID getpid(void);
+
+
+
+/*
+ * Creates a thread.
+ *
+ * @thread_entry: A routine to execute.
+ *
+ */
+
+void thread_create(void(*thread_entry)(void));
+
+
+// USE THIS AT THE END OF A THREAD ROUTINE.
+#define THREAD_ROUTINE_END kill(getpid());
+
 
 #endif

@@ -26,21 +26,31 @@
 
 #include <debug/log.h>
 #include <libkern/string.h>
+#include <libkern/asm.h>
+#include <proc/thread.h>
 #include <stddef.h>
 #include <stdint.h>
 
+static uint8_t lock = 0;
 static void(*term_write)(const char* string, size_t length);
 
 void log_init(void* _term_write) {
     term_write = _term_write;
 }
 
+
+// NOT THREAD SAFE, USE log()
 void kwrite(const char* str) {
     term_write(str, strlen(str));
 }
 
 
 void log(char* fmt, ...) {
+    // Prevent funky threads from
+    // doing funky things.
+    CLI;
+    mutex_lock(&lock);
+
     // Setup the arg pointer.
     va_list arg_ptr;
     va_start(arg_ptr, fmt);
@@ -76,4 +86,6 @@ void log(char* fmt, ...) {
         kwrite(terminated);
     }
 
+    mutex_unlock(&lock);
+    STI;
 }

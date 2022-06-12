@@ -29,11 +29,13 @@
 static struct ThreadControlBlock {
     void* rip;
     PID pid;
+    uint8_t killed;
     struct ThreadControlBlock* next;
 } *root_thread = NULL;
 
 PID next_pid = 0;
 PID running_thread = 0;
+static uint8_t lock = 0;
 
 
 static struct ThreadControlBlock* get_thread(PID pid) {
@@ -93,10 +95,38 @@ int fork(void) {
 }
 
 
+/*
+ * Kills a thread.
+ *
+ * @pid is the PID of the thread
+ * that should be killed.
+ *
+ */
+void kill(PID pid) {
+    __asm__ __volatile__("cli");
+    mutex_lock(&lock);
+    struct ThreadControlBlock* tmp = root_thread;
+
+    while (tmp) {
+        if (tmp->next) {
+            if (tmp->next->pid == pid) {
+                tmp->killed = 1;
+                break;
+            }
+        }
+
+        tmp = tmp->next;
+    }
+}
+
+
 void thread_switch(void* ret_rip) {
     if (root_thread == NULL) return;
     
     get_thread(running_thread++)->rip = ret_rip;
+
+    while (get_thread(running_thread)->killed)
+        ++running_thread;
 
     __asm__ __volatile__(
             "sti; \

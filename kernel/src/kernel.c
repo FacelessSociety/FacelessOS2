@@ -120,7 +120,8 @@ static void init(struct stivale2_struct* ss) {
     log(KINFO "Heap created.\n");
     init_multithreading();
     
-    fork();
+    PID pid = fork();
+    kill(pid);
     log("A");
 }
 

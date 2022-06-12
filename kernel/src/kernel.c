@@ -118,9 +118,6 @@ static void init(struct stivale2_struct* ss) {
     kheap_init();
     log(KINFO "Heap created.\n");
     init_multithreading();
-    
-    fork();
-    log("A");
 }
 
 

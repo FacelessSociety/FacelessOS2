@@ -84,41 +84,50 @@ static void parse_madt(void) {
         if (header->length == 0) break;
         switch (header->type) {
             case APIC_TYPE_LOCAL_APIC:
-                // We don't need any more cores.
-                if (cpuid_idx > MAX_NEEDED_CORES) break;
+                {
+                    // We don't need any more cores.
+                    if (cpuid_idx > MAX_NEEDED_CORES) break;
 
-                local_apic_t* lapic = (local_apic_t*)p;
-                // Print out some information.
-                log(DBG_PURPLE "\n\n---- CPU core found ----\n");
-                log(DBG_YELLOW "<core_info>\n");
-                log(DBG_CYAN "    Processor ID: %d\n", lapic->processor_id);
-                log(DBG_CYAN "    APIC ID: %d\n", lapic->apic_id);
-                log(DBG_CYAN "    Flags: %x\n", lapic->flags);
-                log(DBG_YELLOW "</core_info>\n\n");
-                // Put cpuid into array.
-                acpi_cpuids[cpuid_idx++] = lapic->processor_id;
+                    local_apic_t* lapic = (local_apic_t*)p;
+                    // Print out some information.
+                    log(DBG_PURPLE "\n\n---- CPU core found ----\n");
+                    log(DBG_YELLOW "<core_info>\n");
+                    log(DBG_CYAN "    Processor ID: %d\n", lapic->processor_id);
+                    log(DBG_CYAN "    APIC ID: %d\n", lapic->apic_id);
+                    log(DBG_CYAN "    Flags: %x\n", lapic->flags);
+                    log(DBG_YELLOW "</core_info>\n\n");
+                    // Put cpuid into array.
+                    acpi_cpuids[cpuid_idx++] = lapic->processor_id;
+                }
+
                 break;
             case APIC_TYPE_IO_APIC:
-                // Print some info.
-                io_apic_t* io_apic = (io_apic_t*)p;
-                log(DBG_PURPLE "\n\n---- I/O APIC found ----\n");
-                log(DBG_YELLOW "<apic_info>\n");
-                log(DBG_CYAN "    I/O APIC ID: %d\n", io_apic->io_apic_id);
-                log(DBG_CYAN "    I/O APIC address: %x\n", io_apic->io_apic_addr);
-                log(DBG_CYAN "    Global system interrupt base: %d\n", io_apic->global_system_interrupt_base);
-                log(DBG_YELLOW "</apic_info>\n\n");
-                io_apic_ptr = (void*)(uint64_t)io_apic->io_apic_addr;
+                {
+                    // Print some info.
+                    io_apic_t* io_apic = (io_apic_t*)p;
+                    log(DBG_PURPLE "\n\n---- I/O APIC found ----\n");
+                    log(DBG_YELLOW "<apic_info>\n");
+                    log(DBG_CYAN "    I/O APIC ID: %d\n", io_apic->io_apic_id);
+                    log(DBG_CYAN "    I/O APIC address: %x\n", io_apic->io_apic_addr);
+                    log(DBG_CYAN "    Global system interrupt base: %d\n", io_apic->global_system_interrupt_base);
+                    log(DBG_YELLOW "</apic_info>\n\n");
+                    io_apic_ptr = (void*)(uint64_t)io_apic->io_apic_addr;
+                }
+
                 break;
             case APIC_TYPE_INTERRUPT_OVERRIDE:
-                // Print some info.
-                apic_interrupt_override_t* aio = (apic_interrupt_override_t*)p;
-                log(DBG_PURPLE "\n\n---- Interrupt Override found ----\n");
-                log(DBG_YELLOW "<apic_info>\n");
-                log(DBG_CYAN "    Bus: %d\n", aio->bus);
-                log(DBG_CYAN "    Source: %d\n", aio->source);
-                log(DBG_CYAN "    Interrupt: %x\n", aio->interrupt);
-                log(DBG_CYAN "    Flags: %x\n", aio->flags);
-                log(DBG_YELLOW "</apic_info>\n\n");
+                {
+                    // Print some info.
+                    apic_interrupt_override_t* aio = (apic_interrupt_override_t*)p;
+                    log(DBG_PURPLE "\n\n---- Interrupt Override found ----\n");
+                    log(DBG_YELLOW "<apic_info>\n");
+                    log(DBG_CYAN "    Bus: %d\n", aio->bus);
+                    log(DBG_CYAN "    Source: %d\n", aio->source);
+                    log(DBG_CYAN "    Interrupt: %x\n", aio->interrupt);
+                    log(DBG_CYAN "    Flags: %x\n", aio->flags);
+                    log(DBG_YELLOW "</apic_info>\n\n");
+                }
+
                 break;
         }
 

@@ -1,0 +1,7 @@
+// Checking if herb would work in old school
+write "Test kernel";
+write "Dummy test";
+var dummy = "hello";
+write dummy;
+write 1 + 4;
+ 
